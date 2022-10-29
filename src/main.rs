@@ -1,8 +1,18 @@
 #[macro_use] extern crate rocket;
 
+mod data;
+
 #[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+async fn index() -> String {
+    let output = match data::fetch_incentives(10, 0).await
+    {
+        Ok(result) => result,
+        Err(error) => match error {
+            data::Error::DBError(db_err) => format!("db error! {}", db_err),
+        }
+    };
+
+    output
 }
 
 #[launch]
